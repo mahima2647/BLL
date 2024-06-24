@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.6.12 <0.9.0;
+
+contract SimpleBlockchain {
+    struct Block {
+        uint256 index;
+        uint256 timestamp;
+        string data;
+        bytes32 previousHash;
+        bytes32 hash;
+    }
+
+    Block[] public chain;
+
+    constructor() {
+        createGenesisBlock();
+    }
+
+    function createGenesisBlock() internal {
+        chain.push(Block({
+            index: 0,
+            timestamp: block.timestamp,
+            data: "Genesis Block",
+            previousHash: bytes32(0),
+            hash: keccak256(abi.encodePacked(uint256(0), block.timestamp, "Genesis Block", bytes32(0)))
+        }));
+    }
+
+    function addBlock(string memory data) public {
+        Block storage previousBlock = chain[chain.length - 1];
+        chain.push(Block({
+            index: previousBlock.index + 1,
+            timestamp: block.timestamp,
+            data: data,
+            previousHash: previousBlock.hash,
+            hash: keccak256(abi.encodePacked(previousBlock.index + 1, block.timestamp, data, previousBlock.hash))
+        }));
+    }
+
+    function getBlock(uint256 index) public view returns (Block memory) {
+        require(index < chain.length, "Block does not exist.");
+        return chain[index];
+    }
+
+    function getChainLength() public view returns (uint256) {
+        return chain.length;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.8.2 <0.9.0;
+
+interface ISchool {
+    function getSchoolName() external view returns (string memory);
+    function getStudentCount() external view returns (uint);
+    function getStudentList() external view returns (string[] memory);
+    function addStudent(string calldata name) external;
+}
+
+contract School is ISchool {
+    string private schoolName;
+    string[] private students;
+
+    constructor(string memory _schoolName) {
+        schoolName = _schoolName;
+    }
+
+    function getSchoolName() public view override returns (string memory) {
+        return schoolName;
+    }
+
+    function getStudentCount() public view override returns (uint) {
+        return students.length;
+    }
+
+    function getStudentList() public view override returns (string[] memory) {
+        return students;
+    }
+
+    function addStudent(string calldata name) public override {
+        students.push(name);
+    }
+}
+contract HighSchool is School {
+    string[] private coursesOffered;
+
+    constructor(string memory _schoolName) School(_schoolName) {
+        // Constructor code here
+    }
+
+    function addCourse(string memory course) public {
+        coursesOffered.push(course);
+    }
+
+    function getCourse(uint index) public view returns (string memory) {
+        require(index < coursesOffered.length, "Invalid course index");
+        return coursesOffered[index];
+    }
+
+    function getCoursesCount() public view returns (uint) {
+        return coursesOffered.length;
+    }
+}
